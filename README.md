@@ -20,3 +20,5 @@ if(a.key==b.key() {
 return false
 
 This should be way faster than the default operator==
+
+Update: actually, should just has the memory address of the mutation.  Guaranteed unique.
