@@ -24,3 +24,8 @@ This should be way faster than the default operator==
 Update: actually, should just has the memory address of the mutation.  Guaranteed unique.
 
 Hashing addresses is likely not possible: http://stackoverflow.com/questions/14167455/is-it-possible-to-hash-pointers-in-portable-c03-code
+
+## Results
+
+Hashing based on positions of mutations worked, but was actually a ton of overhead.  results: slower sims.  I have the code in the branch dev_hash on my server.
+
