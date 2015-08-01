@@ -43,3 +43,9 @@ Let's try this:
 //Lookup[# neutral mutations][# selected mutations][first neutral mutation position][all gametes with same first selected mutation position
 map< int, multimap<int, map< double, multimap<double, iterator> > > >
 ~~~
+
+## Revisiting gamete_base::operator==
+
+Is a less naive option possible?
+
+* http://letsalgorithm.blogspot.com/2012/02/intersecting-two-sorted-integer-arrays.html
