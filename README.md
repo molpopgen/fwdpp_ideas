@@ -49,3 +49,4 @@ map< int, multimap<int, map< double, multimap<double, iterator> > > >
 Is a less naive option possible?
 
 * http://letsalgorithm.blogspot.com/2012/02/intersecting-two-sorted-integer-arrays.html
+* http://articles.leetcode.com/2010/03/here-is-phone-screening-question-from.html, esp comment by "surrender"
