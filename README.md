@@ -36,3 +36,10 @@ Instead of
 ~~~{cpp}
 map< int, multimap<int,iterator > >
 ~~~
+
+Let's try this:
+
+~~~{cpp}
+//Lookup[# neutral mutations][# selected mutations][first neutral mutation position][all gametes with same first selected mutation position
+map< int, multimap<int, map< double, multimap<double, iterator> > > >
+~~~
