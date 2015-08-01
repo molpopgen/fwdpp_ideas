@@ -25,7 +25,14 @@ Update: actually, should just has the memory address of the mutation.  Guarantee
 
 Hashing addresses is likely not possible: http://stackoverflow.com/questions/14167455/is-it-possible-to-hash-pointers-in-portable-c03-code
 
-## Results
+### Results
 
 Hashing based on positions of mutations worked, but was actually a ton of overhead.  results: slower sims.  I have the code in the branch dev_hash on my server.
 
+## More detailed lookup structure
+
+Instead of
+
+~~~{cpp}
+map< int, multimap<int,iterator > >
+~~~
