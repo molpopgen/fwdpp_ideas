@@ -50,3 +50,4 @@ Is a less naive option possible?
 
 * http://letsalgorithm.blogspot.com/2012/02/intersecting-two-sorted-integer-arrays.html
 * http://articles.leetcode.com/2010/03/here-is-phone-screening-question-from.html, esp comment by "surrender"
+* http://introcs.cs.princeton.edu/java/42sort/ hints that NlogN may be best we can do with a "what is the inersection" approach
