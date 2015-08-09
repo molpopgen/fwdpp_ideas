@@ -52,3 +52,9 @@ Is a less naive option possible?
 * http://articles.leetcode.com/2010/03/here-is-phone-screening-question-from.html, esp comment by "surrender"
 * http://introcs.cs.princeton.edu/java/42sort/ hints that NlogN may be best we can do with a "what is the inersection" approach
 * https://github.com/tmoertel/practice/blob/master/EPI/13/soln_13_005_intersect_sorted_arrays.py
+
+## Crazy ideas
+
+* instead of lists, vectors of shared_ptr or intrusive_ptr
+* http://baptiste-wicht.com/posts/2011/11/boost-intrusive_ptr.html
+
