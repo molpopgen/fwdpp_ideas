@@ -34,25 +34,14 @@ unique_fill(gsl_rng const *r, unsigned n)
     return x;
 }
 
-vector<unsigned>
-mutrec_current(const vector<unsigned> &g1, const vector<unsigned> &g2,
-               const vector<unsigned> &muts, const vector<unsigned> &brk)
+void
+mutrec_current(vector<unsigned> &recombinant, const vector<unsigned> &g1,
+               const vector<unsigned> &g2, const vector<unsigned> &muts,
+               const vector<unsigned> &brk)
 {
-    // for (auto &&i : g1)
-    // cout << i << ' ';
-    // cout << '\n';
-    // for (auto &&i : g2)
-    // cout << i << ' ';
-    // cout << '\n';
-    // for (auto &&i : muts)
-    // cout << i << ' ';
-    // cout << '\n';
-    // for (auto &&i : brk)
-    // cout << i << ' ';
-    // cout << '\n';
-
     // Do recombination a la fwdpp
-    vector<unsigned> recombinant;
+    // vector<unsigned> recombinant;
+    recombinant.clear();
     auto b1 = g1.begin();
     auto e1 = g1.end();
     auto b2 = g2.begin();
@@ -74,45 +63,27 @@ mutrec_current(const vector<unsigned> &g1, const vector<unsigned> &g2,
             recombinant.insert(
                 upper_bound(recombinant.begin(), recombinant.end(), m), m);
         }
-    // for (auto &&i : recombinant)
-    // cout << i << ' ';
-    // cout << '\n';
-    return recombinant;
 }
 
 template <typename itr>
 itr
 update_mutation_iterator(std::vector<unsigned> &recombinant, itr mb, itr me,
-                         itr b1, itr e1, itr b)
+                         itr b1, itr e1, unsigned b)
 {
-    while (mb < me && b1 < e1 && *mb < *b && *mb < *b1)
+    while (mb < me && b1 < e1 && *mb < b && *mb < *b1)
         {
             recombinant.push_back(*mb);
             ++mb;
         }
     return mb;
 }
-vector<unsigned>
-mutrec_new(const vector<unsigned> &g1, const vector<unsigned> &g2,
-           const vector<unsigned> &muts, const vector<unsigned> &brk)
+
+void
+mutrec_new(vector<unsigned> &recombinant, const vector<unsigned> &g1,
+           const vector<unsigned> &g2, const vector<unsigned> &muts,
+           const vector<unsigned> &brk)
 {
-    // cout << "g1: ";
-    // for (auto &&i : g1)
-    // cout << i << ' ';
-    // cout << '\n';
-    // cout << "g2: ";
-    // for (auto &&i : g2)
-    // cout << i << ' ';
-    // cout << '\n';
-    // cout << "muts: ";
-    // for (auto &&i : muts)
-    // cout << i << ' ';
-    // cout << '\n';
-    // cout << "breakpoints: ";
-    // for (auto &&i : brk)
-    // cout << i << ' ';
-    // cout << '\n';
-    vector<unsigned> recombinant;
+    recombinant.clear();
     auto b1 = g1.begin();
     auto e1 = g1.end();
     auto b2 = g2.begin();
@@ -120,64 +91,33 @@ mutrec_new(const vector<unsigned> &g1, const vector<unsigned> &g2,
     auto mb = muts.begin();
     auto me = muts.end();
 
-    for (auto b = brk.begin(); b != brk.end();
-         ++b) // iterate over crossover positions
+    // for (auto b = brk.begin(); b != brk.end();
+    //     ++b) // iterate over crossover positions
+    for (auto &&b : brk)
         {
             // Take any mutations with positions < *b && < *b1
             // and add them to the recombinant
             mb = update_mutation_iterator(recombinant, mb, me, b1, e1, b);
-            while (mb < me && *mb < *b)
+            while (mb < me && *mb < b)
                 {
                     auto itr = upper_bound(b1, e1, *mb);
                     recombinant.insert(recombinant.end(), b1, itr);
                     recombinant.push_back(*mb);
                     b1 = itr;
-					//mb = update_mutation_iterator(recombinant, ++mb, me, b1, e1, b);
+                    // mb = update_mutation_iterator(recombinant, ++mb, me, b1,
+                    // e1, b);
                     ++mb;
                 }
-            auto itr = upper_bound(b1, e1, *b);
+            auto itr = upper_bound(b1, e1, b);
             recombinant.insert(recombinant.end(), b1, itr);
             b1 = itr;
-            b2 = upper_bound(b2, e2, *b);
+            b2 = upper_bound(b2, e2, b);
             swap(b1, b2);
             swap(e1, e2);
         }
     recombinant.insert(recombinant.end(), mb, me);
-    // cout << "result: ";
-    // for (auto &&i : recombinant)
-    // cout << i << ' ';
-    // cout << '\n';
-    return recombinant;
-}
-void
-doold(vector<vector<unsigned>> g1s, vector<vector<unsigned>> g2s, vector<vector<unsigned>> mutss,
-      vector<vector<unsigned>> brks)
-{
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    start = std::chrono::system_clock::now();
-    for (size_t i = 0; i < g1s.size(); ++i)
-        {
-            auto output1 = mutrec_current(g1s[i], g2s[i], mutss[i], brks[i]);
-        }
-    end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    cout << elapsed_seconds.count() << '\n';
 }
 
-void
-donew(vector<vector<unsigned>> g1s, vector<vector<unsigned>> g2s, vector<vector<unsigned>> mutss,
-      vector<vector<unsigned>> brks)
-{
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    start = std::chrono::system_clock::now();
-    for (size_t i = 0; i < g1s.size(); ++i)
-        {
-            auto output1 = mutrec_new(g1s[i], g2s[i], mutss[i], brks[i]);
-        }
-    end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    cout << elapsed_seconds.count() << '\n';
-}
 int
 main(int argc, char **argv)
 {
@@ -190,28 +130,32 @@ main(int argc, char **argv)
 
     gsl_rng *r = gsl_rng_alloc(gsl_rng_mt19937);
     gsl_rng_set(r, seed);
-    vector<vector<unsigned>> g1s, g2s, mutss, brks;
-    for (unsigned i = 0; i < 5000; ++i)
+    chrono::duration<double> td1(0.), td2(0.);
+    vector<unsigned> recombinant1,recombinant2;
+    recombinant1.reserve((mg1 + mg2) / 2);
+    recombinant2.reserve((mg1 + mg2) / 2);
+    for (unsigned i = 0; i < 50000; ++i)
         {
             auto g1 = unique_fill(r, gsl_ran_poisson(r, mg1));
             auto g2 = unique_fill(r, gsl_ran_poisson(r, mg2));
             auto muts = unique_fill(r, gsl_ran_poisson(r, mnm));
             auto brk = unique_fill(r, gsl_ran_poisson(r, mbrk));
             brk.push_back(numeric_limits<unsigned>::max());
-            auto output1 = mutrec_current(g1, g2, muts, brk);
-            auto output2 = mutrec_new(g1, g2, muts, brk);
-            if (output1 != output2)
+            std::chrono::time_point<std::chrono::system_clock> start, end,
+                start2, end2;
+            start = std::chrono::system_clock::now();
+            mutrec_new(recombinant1, g1, g2, muts, brk);
+            end = std::chrono::system_clock::now();
+            start2 = std::chrono::system_clock::now();
+            mutrec_current(recombinant2, g1, g2, muts, brk);
+            end2 = std::chrono::system_clock::now();
+            chrono::duration<double> d1 = end - start, d2 = end2 - start2;
+            td1 += d1;
+            td2 += d2;
+            if (recombinant1 != recombinant2)
                 {
                     cerr << "failure after " << i << " successes\n";
                 }
-            g1s.emplace_back(std::move(g1));
-            g2s.emplace_back(std::move(g2));
-            mutss.emplace_back(std::move(muts));
-            brks.emplace_back(std::move(brk));
-            // cout << "check: " << (output1 == output2) << '\n';
         }
-	donew(g1s,g2s,mutss,brks);
-	doold(g1s,g2s,mutss,brks);
-	donew(g1s,g2s,mutss,brks);
-	doold(g1s,g2s,mutss,brks);
+    cout << td1.count() / 50000. << ' ' << td2.count() / 50000. << '\n';
 }
