@@ -35,7 +35,7 @@ unique_fill(gsl_rng const *r, unsigned n)
 }
 
 vector<unsigned>
-mutrec_current(gsl_rng const *r, const vector<unsigned> &g1,
+mutrec_current( const vector<unsigned> &g1,
                const vector<unsigned> &g2, const vector<unsigned> &muts,
                const vector<unsigned> &brk)
 {
@@ -94,7 +94,7 @@ update_mutation_iterator(std::vector<unsigned> &recombinant, itr mb, itr me,
     return mb;
 }
 vector<unsigned>
-mutrec_new(gsl_rng const *r, const vector<unsigned> &g1,
+mutrec_new( const vector<unsigned> &g1,
            const vector<unsigned> &g2, const vector<unsigned> &muts,
            const vector<unsigned> &brk)
 {
@@ -168,8 +168,8 @@ main(int argc, char **argv)
             auto muts = unique_fill(r, gsl_ran_poisson(r,1+2*x));
             auto brk = unique_fill(r, gsl_ran_poisson(r,1+x));
             brk.push_back(numeric_limits<unsigned>::max());
-            auto output1 = mutrec_current(r, g1, g2, muts, brk);
-            auto output2 = mutrec_new(r, g1, g2, muts, brk);
+            auto output1 = mutrec_current( g1, g2, muts, brk);
+            auto output2 = mutrec_new( g1, g2, muts, brk);
 			if(output1!=output2)
 			{
 				cerr << "failure after " << i << " successes\n";
@@ -185,7 +185,7 @@ main(int argc, char **argv)
     start = std::chrono::system_clock::now();
 	for(size_t i=0;i<g1s.size();++i)
 	{
-		auto result = mutrec_current(r,g1s[i],brks[i],mutss[i],brks[i]);
+		auto result = mutrec_current(g1s[i],brks[i],mutss[i],brks[i]);
 	}
     end = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end-start;
@@ -194,7 +194,7 @@ main(int argc, char **argv)
     start = std::chrono::system_clock::now();
 	for(size_t i=0;i<g1s.size();++i)
 	{
-		auto result = mutrec_new(r,g1s[i],brks[i],mutss[i],brks[i]);
+		auto result = mutrec_new(g1s[i],brks[i],mutss[i],brks[i]);
 	}
     end = std::chrono::system_clock::now();
 	 elapsed_seconds = end-start;
