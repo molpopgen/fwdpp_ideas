@@ -80,25 +80,39 @@ mutrec_current(gsl_rng const *r, const vector<unsigned> &g1,
     return recombinant;
 }
 
+template <typename itr>
+itr
+update_mutation_iterator(std::vector<unsigned> &recombinant, itr mb, itr me,
+                         itr b1, itr e1,itr b)
+{
+    while (mb < me && b1 < e1 && *mb < *b && *mb < *b1)
+        {
+            recombinant.push_back(*mb);
+            ++mb;
+        }
+    return mb;
+}
 vector<unsigned>
 mutrec_new(gsl_rng const *r, const vector<unsigned> &g1,
            const vector<unsigned> &g2, const vector<unsigned> &muts,
            const vector<unsigned> &brk)
 {
+    cout << "g1: ";
     for (auto &&i : g1)
         cout << i << ' ';
     cout << '\n';
+    cout << "g2: ";
     for (auto &&i : g2)
         cout << i << ' ';
     cout << '\n';
+    cout << "muts: ";
     for (auto &&i : muts)
         cout << i << ' ';
     cout << '\n';
+    cout << "breakpoints: ";
     for (auto &&i : brk)
         cout << i << ' ';
     cout << '\n';
-
-    // Do recombination a la fwdpp
     vector<unsigned> recombinant;
     auto b1 = g1.begin();
     auto e1 = g1.end();
@@ -106,79 +120,32 @@ mutrec_new(gsl_rng const *r, const vector<unsigned> &g1,
     auto e2 = g2.end();
     auto mb = muts.begin();
     auto me = muts.end();
-    for (auto &&b : brk)
+
+    for (auto b = brk.begin(); b != brk.end();
+         ++b) // iterate over crossover positions
         {
-            cout << "processing breakpoint : " << b << ":\n";
-            auto itr = upper_bound(b1, e1, b);
-            cout << "mutations in gamete to be inserted before " << b
-                 << " are: ";
-            for_each(b1, itr, [](unsigned i) { cout << i << ' '; });
-            cout << '\n';
-            cout << "new mutations with positions <= " << b << " are: ";
-            auto mitr = upper_bound(mb, me, b);
-            for_each(mb, mitr, [](unsigned i) { cout << i << ' '; });
-            cout << '\n';
-            cout << "new mutations that come before the gamete's mutations: "
-                    "are: ";
-            auto mb2 = mb;
-            for (; mb2 < me && *mb2 < *b1 && *mb2 < b; ++mb2)
-                {
-                    cout << *mb2 << ' ';
-                    recombinant.push_back(*mb2);
-                }
-            cout << '\n';
-            cout << "new mutations interdigitated with the gamete's mutations "
-                    "are: ";
-            mitr = upper_bound(b1, itr, *mb2);
-            while (mitr != b1 && mitr != itr)
-                {
-                    cout << *mb2 << ' ';
-                    auto itr2 = upper_bound(b1, itr, *mb2);
-                    cout << "(" << (itr2 == itr) <<','<<(itr2==b1)<< ','<<(b1<itr2)<<") ";
-                    if (itr2 == b1)
-                        {
-                            recombinant.push_back(*mb2);
-                        }
-                    else
-                        {
-							for(;b1<itr2;++b1)
-							{
-								cout << '['<<*b1<<','<<*mb2<<']' << ' ';
-								if(*b1<*mb2) recombinant.push_back(*b1);
-							}
-								recombinant.push_back(*mb2);
-						}
-                    ++mb2;
-                    mitr = upper_bound(b1, itr, *mb2);
-                }
-            cout << '\n';
-            //mb = upper_bound(mb2, me, b);
-            itr = upper_bound(b1, e1, b);
-            recombinant.insert(recombinant.end(), b1, itr);
-            cout << "new mutations after gamete but before " << b << ": ";
-			mb=mb2;
-			for(;mb<me&&*mb<b;++mb)
+            // Take any mutations with positions < *b && < *b1
+            // and add them to the recombinant
+			mb=update_mutation_iterator(recombinant,mb,me,b1,e1,b);
+			while(mb<me&& *mb<*b)
 			{
-				cout << *mb << ' ';
+				auto itr = upper_bound(b1, e1, *mb);
+				recombinant.insert(recombinant.end(), b1, itr);
 				recombinant.push_back(*mb);
+				b1 = itr;
+				++mb;
 			}
-            cout << '\n';
+            auto itr = upper_bound(b1, e1, *b);
+            recombinant.insert(recombinant.end(), b1, itr);
             b1 = itr;
-            b2 = upper_bound(b2, e2, b);
+            b2 = upper_bound(b2, e2, *b);
             swap(b1, b2);
             swap(e1, e2);
         }
+    recombinant.insert(recombinant.end(),mb,me);
+	cout << "result: ";
     for (auto &&i : recombinant)
-        {
-            if (binary_search(muts.begin(), muts.end(), i))
-                {
-                    cout << i << "* ";
-                }
-            else
-                {
-                    cout << i << ' ';
-                }
-        }
+        cout << i << ' ';
     cout << '\n';
     return recombinant;
 }
@@ -186,15 +153,18 @@ mutrec_new(gsl_rng const *r, const vector<unsigned> &g1,
 int
 main(int argc, char **argv)
 {
+	int argn=1;
+	unsigned seed =static_cast<unsigned>(atoi(argv[argn++])); 
+    unsigned x = static_cast<unsigned>(atoi(argv[argn++]));
+
     gsl_rng *r = gsl_rng_alloc(gsl_rng_mt19937);
-    gsl_rng_set(r, 0);
-    unsigned x = 5;
-    for (unsigned i = 0; i < 3; ++i)
+    gsl_rng_set(r, seed);
+    for (unsigned i = 0; i < 300; ++i)
         {
-            auto g1 = unique_fill(r, x);
-            auto g2 = unique_fill(r, x);
-            auto muts = unique_fill(r, x);
-            auto brk = unique_fill(r, x);
+            auto g1 = unique_fill(r, gsl_ran_poisson(r,1+x));
+            auto g2 = unique_fill(r, gsl_ran_poisson(r,1+x));
+            auto muts = unique_fill(r, gsl_ran_poisson(r,1+2*x));
+            auto brk = unique_fill(r, gsl_ran_poisson(r,1+x));
             brk.push_back(numeric_limits<unsigned>::max());
             auto output1 = mutrec_current(r, g1, g2, muts, brk);
             auto output2 = mutrec_new(r, g1, g2, muts, brk);
