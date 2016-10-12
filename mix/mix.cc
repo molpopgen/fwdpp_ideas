@@ -7,6 +7,7 @@
 #include <iostream>
 #include <limits>
 #include <vector>
+#include <chrono>
 
 using namespace std;
 
@@ -38,18 +39,18 @@ mutrec_current(gsl_rng const *r, const vector<unsigned> &g1,
                const vector<unsigned> &g2, const vector<unsigned> &muts,
                const vector<unsigned> &brk)
 {
-    for (auto &&i : g1)
-        cout << i << ' ';
-    cout << '\n';
-    for (auto &&i : g2)
-        cout << i << ' ';
-    cout << '\n';
-    for (auto &&i : muts)
-        cout << i << ' ';
-    cout << '\n';
-    for (auto &&i : brk)
-        cout << i << ' ';
-    cout << '\n';
+    //for (auto &&i : g1)
+        //cout << i << ' ';
+    //cout << '\n';
+    //for (auto &&i : g2)
+        //cout << i << ' ';
+    //cout << '\n';
+    //for (auto &&i : muts)
+        //cout << i << ' ';
+    //cout << '\n';
+    //for (auto &&i : brk)
+        //cout << i << ' ';
+    //cout << '\n';
 
     // Do recombination a la fwdpp
     vector<unsigned> recombinant;
@@ -74,9 +75,9 @@ mutrec_current(gsl_rng const *r, const vector<unsigned> &g1,
             recombinant.insert(
                 upper_bound(recombinant.begin(), recombinant.end(), m), m);
         }
-    for (auto &&i : recombinant)
-        cout << i << ' ';
-    cout << '\n';
+    //for (auto &&i : recombinant)
+        //cout << i << ' ';
+    //cout << '\n';
     return recombinant;
 }
 
@@ -97,22 +98,22 @@ mutrec_new(gsl_rng const *r, const vector<unsigned> &g1,
            const vector<unsigned> &g2, const vector<unsigned> &muts,
            const vector<unsigned> &brk)
 {
-    cout << "g1: ";
-    for (auto &&i : g1)
-        cout << i << ' ';
-    cout << '\n';
-    cout << "g2: ";
-    for (auto &&i : g2)
-        cout << i << ' ';
-    cout << '\n';
-    cout << "muts: ";
-    for (auto &&i : muts)
-        cout << i << ' ';
-    cout << '\n';
-    cout << "breakpoints: ";
-    for (auto &&i : brk)
-        cout << i << ' ';
-    cout << '\n';
+    //cout << "g1: ";
+    //for (auto &&i : g1)
+        //cout << i << ' ';
+    //cout << '\n';
+    //cout << "g2: ";
+    //for (auto &&i : g2)
+        //cout << i << ' ';
+    //cout << '\n';
+    //cout << "muts: ";
+    //for (auto &&i : muts)
+        //cout << i << ' ';
+    //cout << '\n';
+    //cout << "breakpoints: ";
+    //for (auto &&i : brk)
+        //cout << i << ' ';
+    //cout << '\n';
     vector<unsigned> recombinant;
     auto b1 = g1.begin();
     auto e1 = g1.end();
@@ -143,10 +144,10 @@ mutrec_new(gsl_rng const *r, const vector<unsigned> &g1,
             swap(e1, e2);
         }
     recombinant.insert(recombinant.end(),mb,me);
-	cout << "result: ";
-    for (auto &&i : recombinant)
-        cout << i << ' ';
-    cout << '\n';
+	//cout << "result: ";
+    //for (auto &&i : recombinant)
+        //cout << i << ' ';
+    //cout << '\n';
     return recombinant;
 }
 
@@ -159,7 +160,8 @@ main(int argc, char **argv)
 
     gsl_rng *r = gsl_rng_alloc(gsl_rng_mt19937);
     gsl_rng_set(r, seed);
-    for (unsigned i = 0; i < 300; ++i)
+	vector< vector<unsigned> > g1s,g2s,mutss,brks;
+    for (unsigned i = 0; i < 5000; ++i)
         {
             auto g1 = unique_fill(r, gsl_ran_poisson(r,1+x));
             auto g2 = unique_fill(r, gsl_ran_poisson(r,1+x));
@@ -168,6 +170,34 @@ main(int argc, char **argv)
             brk.push_back(numeric_limits<unsigned>::max());
             auto output1 = mutrec_current(r, g1, g2, muts, brk);
             auto output2 = mutrec_new(r, g1, g2, muts, brk);
-            cout << "check: " << (output1 == output2) << '\n';
+			if(output1!=output2)
+			{
+				cerr << "failure after " << i << " successes\n";
+			}
+			g1s.emplace_back(std::move(g1));
+			g2s.emplace_back(std::move(g2));
+			mutss.emplace_back(std::move(muts));
+			brks.emplace_back(std::move(brk));
+            //cout << "check: " << (output1 == output2) << '\n';
         }
+	//Timing loop
+	std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now();
+	for(size_t i=0;i<g1s.size();++i)
+	{
+		auto result = mutrec_current(r,g1s[i],brks[i],mutss[i],brks[i]);
+	}
+    end = std::chrono::system_clock::now();
+	std::chrono::duration<double> elapsed_seconds = end-start;
+	cout << elapsed_seconds.count() << '\n';
+
+    start = std::chrono::system_clock::now();
+	for(size_t i=0;i<g1s.size();++i)
+	{
+		auto result = mutrec_new(r,g1s[i],brks[i],mutss[i],brks[i]);
+	}
+    end = std::chrono::system_clock::now();
+	 elapsed_seconds = end-start;
+	cout << elapsed_seconds.count() << '\n';
+
 }
