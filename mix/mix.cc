@@ -70,12 +70,16 @@ itr
 update_mutation_iterator(std::vector<unsigned> &recombinant, itr mb, itr me,
                          itr b1, itr e1, unsigned b)
 {
-    while (mb < me && b1 < e1 && *mb < b && *mb < *b1)
+	auto mitr = upper_bound(mb,me,*b1);
+	recombinant.insert(recombinant.end(),mb,mitr);
+	return mitr;
+    /*while (mb < me && b1 < e1 && *mb < b && *mb < *b1)
         {
             recombinant.push_back(*mb);
             ++mb;
         }
     return mb;
+	*/
 }
 
 void
