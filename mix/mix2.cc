@@ -20,17 +20,21 @@ inline NEXT_EVENT_TYPE//std::pair<NEXT_EVENT_TYPE, double>
 get_next_pos2(vector<unsigned>::iterator rb, vector<unsigned>::iterator re,
               vector<unsigned>::iterator mb, vector<unsigned>::iterator me)
 {
-    if (rb == re && mb == me)
-        {
-			return NEXT_EVENT_TYPE::NONE;
-            //return { NEXT_EVENT_TYPE::NONE,
-            //         std::numeric_limits<unsigned>::quiet_NaN() };
-        }
-    if (rb == re)
+    //if (rb == re && mb == me)
+    //    {
+	//		return NEXT_EVENT_TYPE::NONE;
+    //        //return { NEXT_EVENT_TYPE::NONE,
+    //        //         std::numeric_limits<unsigned>::quiet_NaN() };
+    //    }
+    if (rb == re || (mb!=me && *mb<*rb))
         {
 			return NEXT_EVENT_TYPE::MUT;
             //return { NEXT_EVENT_TYPE::MUT, *mb };
         }
+	else if (rb!=re) return NEXT_EVENT_TYPE::REC;
+
+	return NEXT_EVENT_TYPE::NONE;
+	/*
     if (mb == me)
         {
 			return NEXT_EVENT_TYPE::REC;
@@ -41,7 +45,8 @@ get_next_pos2(vector<unsigned>::iterator rb, vector<unsigned>::iterator re,
 			return NEXT_EVENT_TYPE::MUT;
             //return { NEXT_EVENT_TYPE::MUT, *mb };
         }
-	return NEXT_EVENT_TYPE::REC;
+		*/
+	//return NEXT_EVENT_TYPE::REC;
     //return { NEXT_EVENT_TYPE::REC, *rb };
 }
 
