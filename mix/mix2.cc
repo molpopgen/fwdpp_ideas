@@ -166,8 +166,8 @@ mutrec_new2(vector<unsigned> &recombinant, const vector<unsigned> &g1,
                     recombinant.insert(recombinant.end(), b1, e1);
                 }
         }
-    recombinant.insert(recombinant.end(), b1, e1);
 }
+
 void
 mutrec_new(vector<unsigned> &recombinant, const vector<unsigned> &g1,
            const vector<unsigned> &g2, queue<unsigned> &muts,
