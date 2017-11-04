@@ -68,6 +68,8 @@ struct frange2
 };
 ```
 
-*A priori*, the second version should be faster.  It should also do an ok job avoiding false sharing.  
+*A priori*, the second version should be faster.  It should also do an ok job avoiding false sharing.  However, limited
+testing suggests no real differences in performance.  The latter implementation is also "unsafe", in that there's no
+range-checking when assiging into `w`.
 
 I should read more about how to properly use the `std::reference_wrapper` types...
